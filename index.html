@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbook</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+  body { background:#f0f2f5; color:#1c1e21; }
+  .navbar { background:#1877f2; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; }
+  .navbar h1 { font-size:24px; letter-spacing:-1px; }
+  .navbar a { color:#fff; text-decoration:none; font-size:14px; font-weight:bold; background:rgba(255,255,255,.2); padding:6px 14px; border-radius:6px; }
+  .container { max-width:900px; margin:20px auto; padding:0 10px; }
+
+  .signup-card { background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,.15); padding:25px; max-width:450px; margin:30px auto; display:none; }
+  .signup-card.active { display:block; }
+  .signup-card h2 { text-align:center; margin-bottom:15px; color:#1877f2; }
+  .signup-card input, .signup-card select { width:100%; padding:11px; margin-bottom:10px; border:1px solid #ccd0d5; border-radius:6px; font-size:14px; }
+  .signup-card button { width:100%; background:#42b72a; color:#fff; border:none; padding:12px; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer; }
+  .signup-card button:hover { background:#36a420; }
+  .row { display:flex; gap:8px; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:16px; margin-top:10px; }
+  .profile-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15); position:relative; }
+  .cover { height:70px; background:linear-gradient(135deg,#1877f2,#42b72a); }
+  .avatar { width:80px; height:80px; border-radius:50%; border:4px solid #fff; margin:-40px auto 0; display:block; object-fit:cover; background:#ddd; position:relative; }
+  .demo-badge { position:absolute; top:8px; right:8px; background:rgba(0,0,0,.55); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; }
+  .pname { text-align:center; font-weight:bold; font-size:17px; margin-top:6px; }
+  .pbio { text-align:center; font-size:12px; color:#65676b; margin:3px 10px 10px; min-height:30px; }
+  .actions { display:flex; gap:6px; padding:0 10px 12px; }
+  .actions a { flex:1; text-align:center; padding:8px 0; border-radius:6px; font-size:13px; font-weight:bold; text-decoration:none; }
+  .msg { background:#1877f2; color:#fff; }
+  .msg:hover { background:#166fe5; }
+  .friend { background:#e4e6eb; color:#1c1e21; }
+  .friend:hover { background:#d8dadf; }
+  .footer { text-align:center; font-size:11px; color:#888; margin:30px 0; }
+
+  @media (max-width:500px){
+    .grid { grid-template-columns:1fr 1fr; }
+    .avatar { width:60px; height:60px; margin-top:-30px; }
+    .pname { font-size:14px; }
+    .actions { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>Chatbook</h1>
+  <a href="#" id="signupToggle">Sign Up</a>
+</div>
+
+<div class="container">
+
+  <div class="signup-card" id="signupCard">
+    <h2>Create Account</h2>
+    <div class="row">
+      <input type="text" id="fname" placeholder="First name">
+      <input type="text" id="lname" placeholder="Last name">
+    </div>
+    <input type="date" id="dob" title="Date of birth">
+    <input type="text" id="uname" placeholder="Username">
+    <input type="password" id="pass" placeholder="Password">
+    <button id="signupBtn">Sign Up</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footer">Demo profiles for demonstration. Sponsored links.</div>
+
+</div><script>
+const LINKS = [
+  "https://auctionr.org/4/487526014b881cb9638c2983c5eaf358",
+  "https://auctionr.org/4/61f1dd419d21c23757140ee5a223e6e4",
+  "https://auctionr.org/4/52eb4c6d4e44562254f6fa858c6bd600",
+  "https://auctionr.org/4/1647a0f9563f20acdf28b7280d7bcd88",
+  "https://auctionr.org/4/aa33377e6a2d3a8f710c736d02368a1b",
+  "https://asiafilm.org/4/5b124357a8de9343fedf87c684f0efc3",
+  "https://asiafilm.org/4/22659c8e020ac39c9e43072f6e41ec6e",
+  "https://asiafilm.org/4/ef64b43144e7aa32f063ec17391cf562"
+];
+
+const PROFILES = [
+  { name:"Ayesha Rahman", bio:"Love photography 📸 | Dhaka", img:"https://i.pravatar.cc/150?img=47" },
+  { name:"Tanvir Hasan", bio:"Cricket 🏏 | Student", img:"https://i.pravatar.cc/150?img=12" },
+  { name:"Nusrat Jahan", bio:"Travel lover ✈️ | Sylhet", img:"https://i.pravatar.cc/150?img=32" },
+  { name:"Rakib Ahmed", bio:"Tech enthusiast 💻", img:"https://i.pravatar.cc/150?img=15" },
+  { name:"Mim Akter", bio:"Foodie 🍕 | Chittagong", img:"https://i.pravatar.cc/150?img=45" },
+  { name:"Sabbir Khan", bio:"Music 🎵 | Football", img:"https://i.pravatar.cc/150?img=8" },
+  { name:"Fariha Islam", bio:"Reader 📚 | Artist 🎨", img:"https://i.pravatar.cc/150?img=44" },
+  { name:"Mehedi Hasan", bio:"Gamer 🎮 | Coder", img:"https://i.pravatar.cc/150?img=33" }
+];
+
+const grid = document.getElementById("grid");
+PROFILES.forEach((p, i) => {
+  const link = LINKS[i % LINKS.length];
+  const card = document.createElement("div");
+  card.className = "profile-card";
+  card.innerHTML = `
+    <div class="cover"></div>
+    <span class="demo-badge">Demo</span>
+    <img class="avatar" src="${p.img}" loading="lazy" alt="">
+    <div class="pname">${p.name}</div>
+    <div class="pbio">${p.bio}</div>
+    <div class="actions">
+      <a class="msg" href="${link}" target="_blank" rel="noopener">Message</a>
+      <a class="friend" href="${link}" target="_blank" rel="noopener">Add Friend</a>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+const signupCard = document.getElementById("signupCard");
+document.getElementById("signupToggle").addEventListener("click", (e)=>{
+  e.preventDefault();
+  signupCard.classList.toggle("active");
+});
+document.getElementById("signupBtn").addEventListener("click", ()=>{
+  const fname = document.getElementById("fname").value;
+  const lname = document.getElementById("lname").value;
+  const dob = document.getElementById("dob").value;
+  const uname = document.getElementById("uname").value;
+  const pass = document.getElementById("pass").value;
+  if(!fname || !lname || !dob || !uname || !pass){
+    alert("সব ঘর পূরণ করুন");
+    return;
+  }
+  alert("অ্যাকাউন্ট তৈরি হয়েছে (ডেমো)! স্বাগতম " + fname);
+  signupCard.classList.remove("active");
+});
+</script>
+
+</body>
+</html>
